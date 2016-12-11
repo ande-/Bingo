@@ -106,7 +106,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
                     (alert: UIAlertAction!) in
                     let viewController = self.navigationController?.viewControllers[0] as! InitialViewController
                     viewController.endGame()
-                    self.navigationController?.popToRootViewController(animated: true)
+                    _ = self.navigationController?.popToRootViewController(animated: true)
                     
                 }))
                 self.present(alert, animated: true, completion:nil)
@@ -125,7 +125,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     @IBAction func leaveGameTapped(_ sender: AnyObject) {
-        self.navigationController?.popViewController(animated: true)
+        _ = self.navigationController?.popViewController(animated: true)
     }
     
     func checkForWin() {

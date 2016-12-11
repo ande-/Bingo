@@ -83,7 +83,7 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
     }
     
     @IBAction func skipTapped(_ sender: AnyObject) {
-        navigationController?.popToRootViewController(animated: true)
+        _ = navigationController?.popToRootViewController(animated: true)
     }
     
     func configuredMailComposeViewController() -> MFMailComposeViewController? {
@@ -126,10 +126,10 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
     
     func goBack() {
         if gameOngoing {
-            self.navigationController?.popViewController(animated: true)
+            _ = self.navigationController?.popViewController(animated: true)
         }
         else {
-            self.navigationController?.popToRootViewController(animated: true)
+            _ = self.navigationController?.popToRootViewController(animated: true)
         }
     }
     

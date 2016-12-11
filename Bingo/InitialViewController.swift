@@ -343,7 +343,7 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
         }
         let alert = UIAlertController(title: "Error", message: showingMessage, preferredStyle: UIAlertControllerStyle.alert)
         alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-        self.navigationController?.popToRootViewController(animated: true)
+        _ = self.navigationController?.popToRootViewController(animated: true)
         self.present(alert, animated: true, completion: nil)
     }
     
