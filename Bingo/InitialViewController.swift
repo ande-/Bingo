@@ -146,7 +146,7 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
                     self!.joinExistingButton.isHidden = true
                     self!.joinExistingButton.setTitle("Join your new game", for: UIControlState.disabled)
                     self!.orLabel.isHidden = true
-                    self!.playButton.isHidden = false
+                    self!.playButton.isEnabled = true
                 })
             }
         }) 
@@ -279,10 +279,10 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
             //can become disabled by: backspacing down from 5, typing up from 5
             if isBackspace {
                 if numExisting == 5 {
-                    self.playButton.isHidden = true
+                    self.playButton.isEnabled = false
                     }
                 else if numExisting == 6 {
-                    self.playButton.isHidden = false
+                    self.playButton.isEnabled = true
                 }
                 return true
             }
@@ -293,7 +293,7 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
                 return false
             }
             else if numExisting + numReplacing == 5 {
-                self.playButton.isHidden = false
+                self.playButton.isEnabled = true
                 return true
             }
             else if numExisting + numReplacing > 5 {

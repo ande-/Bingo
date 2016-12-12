@@ -32,7 +32,9 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.separatorColor = kBrownColor
         tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
         automaticallyAdjustsScrollViewInsets = false;
-
+        
+        let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideSearchBar?.textColor = kReddishBrownColor
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -133,6 +135,10 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
         return cell!
     }
     
+    @IBAction func exitTapped(_ sender: Any) {
+        performSegue(withIdentifier: "unwindToInvite", sender: self)
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let contact:ContactEmail = contacts[(indexPath as NSIndexPath).row];
         selectedEmail = contact.email
@@ -142,11 +148,9 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dvc: InviteViewController = segue.destination as?InviteViewController {
             if (selectedEmail != nil) {
-                if (dvc.emailsTextView.text.characters.count > 0) {
-                    dvc.emailsTextView.text.append("; ")
-                }
-                dvc.emailsTextView.text.append(selectedEmail!)
+                dvc.emails.append(selectedEmail!)
                 dvc.sendInvitesButton.isHidden = false
+                dvc.emailsTableView.reloadData()
             }
         }
     }

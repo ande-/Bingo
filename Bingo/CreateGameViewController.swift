@@ -124,7 +124,9 @@ class CreateGameViewController: UIViewController, UITextFieldDelegate, UITextVie
     // MARK: - Text Field delegate
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.text?.characters.count > 0 {
-            doneButton.isHidden = false
+            doneButton.isEnabled = true
+        } else {
+            doneButton.isEnabled = false
         }
         return true
     }

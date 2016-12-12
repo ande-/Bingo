@@ -30,18 +30,19 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 ;
 
-class InviteViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
+class InviteViewController: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var addEmailTextField: UITextField!
-    @IBOutlet weak var emailsTextView: UITextView!
     @IBOutlet weak var addEmailButton: UIButton!
     @IBOutlet weak var sendInvitesButton: UIButton!
     @IBOutlet weak var skipCancelButton: UIButton!
+    @IBOutlet weak var emailsTableView: UITableView!
     
     @IBAction func unwindToInvite(_ segue: UIStoryboardSegue) {}
     
     var gameOngoing = false
     var contacts = [CNContact]()
+    var emails = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,12 +62,10 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
     }
 
     @IBAction func addEmailTapped(_ sender: AnyObject) {
-        if emailsTextView.text.characters.count > 0 {
-            emailsTextView.text.append("; ")
-        }
-        emailsTextView.text.append(addEmailTextField.text!)
+        emails.append(addEmailTextField.text!)
         addEmailTextField.text = nil
         sendInvitesButton.isHidden = false
+        emailsTableView.reloadData()
     }
     
     @IBAction func sendInvitesTapped(_ sender: AnyObject) {
@@ -93,17 +92,16 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
         }
         let mailComposerVC = MFMailComposeViewController()
         mailComposerVC.mailComposeDelegate = self
-        let recipients:[String] = emailsTextView.text.components(separatedBy: "; ")
-        var subject = "You've been invited to play Buzzword Bingo!"
-        mailComposerVC.setToRecipients(recipients)
+        var subject = "You've been invited to play Buzzwords Bingo!"
+        mailComposerVC.setToRecipients(emails)
              mailComposerVC.setSubject(subject)
         if let username = appDelegate.currentUserName {
             if let gameName = appDelegate.currentGame?.name {
-                subject = "\(username) invited you to join the game \"\(gameName)\" in Buzzword Bingo!"
+                subject = "\(username) invited you to join the game \"\(gameName)\" in Buzzwords Bingo!"
                 mailComposerVC.setSubject(subject)
             }
         }
-        mailComposerVC.setMessageBody(subject + "<br/><br/>Your room code is: <b>\(appDelegate.roomCode!)</b><br/><br/>In <a href='http://itunes.com/apps/clichesbingo'>Buzzword Bingo</a>, hit \"Join existing game\" and copy or type <b>\(appDelegate.roomCode!)</b> into the room code field.<br/><br/><a href='http://itunes.com/apps/clichesbingo'>Download the App</a>", isHTML: true)
+        mailComposerVC.setMessageBody(subject + "<br/><br/>Your room code is: <b>\(appDelegate.roomCode!)</b><br/><br/>In <a href='http://itunes.com/apps/buzzwordsbingo'>Buzzwords Bingo</a>, hit \"Join existing game\" and copy or type <b>\(appDelegate.roomCode!)</b> into the room code field.<br/><br/><a href='http://itunes.com/apps/buzzwordsbingo'>Download the App</a>", isHTML: true)
         
         return mailComposerVC
     }
@@ -149,6 +147,29 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
         
         let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailTest.evaluate(with: testStr)
+    }
+    
+    // MARK: - table view data source 
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return emails.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "emailCell")
+        cell?.selectionStyle = UITableViewCellSelectionStyle.none
+        cell?.textLabel?.textColor = kReddishBrownColor
+        
+        let currentEmail = emails[(indexPath as NSIndexPath).row]
+        cell?.textLabel!.text = currentEmail
+        
+        return cell!
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath)
+    {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            emails.remove(at: (indexPath as NSIndexPath).row)
+        }
     }
 
 }
