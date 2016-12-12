@@ -119,6 +119,11 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        for cell in collectionView.visibleCells
+        {
+            (cell as! LetterCube).titleLabel.adjustFont()
+        }
         if (gameOverAlert != nil) {
             present(gameOverAlert!, animated: true, completion:nil)
         }
