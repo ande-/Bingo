@@ -70,13 +70,15 @@ class SelectTemplateViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func loadSystemGames() -> [Game] {
-        let classic = Game(name:"Classic", words: "opposites attract, when life gives you lemons, push the envelope, money doesn't grow on trees, read between the lines, woke up on the wrong side of the bed, better half, broken record, dog eat dog, greek to me, foot in mouth, it's a small world, jump the gun, learn the ropes, you only live once, when it rains it pours, tip of your tongue, spitting image, spinning your wheels, out on a limb, break the ice, killing time, light at the end of the tunnel, it is what it is")
+        let classic = Game(name:"Cliches", words: "opposites attract, when life gives you lemons, push the envelope, money doesn't grow on trees, read between the lines, woke up on the wrong side of the bed, better half, broken record, dog eat dog, greek to me, foot in mouth, it's a small world, jump the gun, learn the ropes, you only live once, when it rains it pours, tip of your tongue, spitting image, spinning your wheels, out on a limb, break the ice, killing time, light at the end of the tunnel, it is what it is")
         
-        let corporate = Game(name:"Corporate", words: "synergy, leverage, strategic, partnership, DNA, mobile, global, local, paradigm, actionable, bandwidth, pipeline, culture, value-added, scalable, user experience, integrated, thought leader, X as a service, internet of things, reach out to, take this offline, touch base, ping me")
+        let corporate = Game(name:"Corporate", words: "synergy, leverage, strategic, partnership, DNA, mobile, global, local, paradigm, actionable, bandwidth, pipeline, culture, value-added, scalable, user experience, integrated, thought leader, enterprise, ballpark, reach out to, take this offline, touch base, ping me")
         
-        let politics = Game(name:"Politics", words:"the american people, career politician, super PAC, grass-roots, middle class, veterans, top one percent, hard-working, family values, crossroads, the economy, big government, boots on the ground, right/left wing, strong leader, tax cut, radical, corrupt, terrorist, game changers, war on X, my friends, voters, my competitor")
+        let techology = Game(name: "Technology", words: "internet of things, virtual reality, mobile first, [X] as a service, net neutrality, deep learning, high availability, blockchain, data mining, quantum computing, information of everything, agile, benchmarking, cloud, cross-platform, deep dive, devOps, real-time, web 2.0, growth hacking, digital signage, datafication, big data, [X]-driven development, neural nets")
+
+        let kidsTheseDays = Game(name: "Kids These Days", words: "bae, ghost, neg, cheesing, olds, turnt, woke, slay, tight, on fleek, basic, lit, the ’rents, fam, can’t even, thot, throw shade, yaaaas, suh, dope, ship, i know right, any acronym, ratchet, high-key")
         
-        return [classic, corporate, politics]
+        return [classic, corporate, techology, kidsTheseDays]
     }
     
     //MARK: table view data source

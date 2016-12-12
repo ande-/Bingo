@@ -94,16 +94,16 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
         let mailComposerVC = MFMailComposeViewController()
         mailComposerVC.mailComposeDelegate = self
         let recipients:[String] = emailsTextView.text.components(separatedBy: "; ")
-        var subject = "You've been invited to play Cliche Bingo!"
+        var subject = "You've been invited to play Buzzword Bingo!"
         mailComposerVC.setToRecipients(recipients)
              mailComposerVC.setSubject(subject)
         if let username = appDelegate.currentUserName {
             if let gameName = appDelegate.currentGame?.name {
-                subject = "\(username) invited you to join the game \"\(gameName)\" in Cliche Bingo!"
+                subject = "\(username) invited you to join the game \"\(gameName)\" in Buzzword Bingo!"
                 mailComposerVC.setSubject(subject)
             }
         }
-        mailComposerVC.setMessageBody(subject + "<br/><br/>Your room code is: <b>\(appDelegate.roomCode!)</b><br/><br/>In <a href='http://itunes.com/apps/clichesbingo'>Cliche Bingo</a>, hit \"Join existing game\" and copy or type <b>\(appDelegate.roomCode!)</b> into the room code field.<br/><br/><a href='http://itunes.com/apps/clichesbingo'>Download the App</a>", isHTML: true)
+        mailComposerVC.setMessageBody(subject + "<br/><br/>Your room code is: <b>\(appDelegate.roomCode!)</b><br/><br/>In <a href='http://itunes.com/apps/clichesbingo'>Buzzword Bingo</a>, hit \"Join existing game\" and copy or type <b>\(appDelegate.roomCode!)</b> into the room code field.<br/><br/><a href='http://itunes.com/apps/clichesbingo'>Download the App</a>", isHTML: true)
         
         return mailComposerVC
     }
