@@ -37,3 +37,40 @@ class LetterCube: UICollectionViewCell {
         }
     }
 }
+
+
+extension UILabel
+{
+    func adjustFont()
+    {
+        
+        let testLabel = UILabel();
+        let words:[String] = (self.text?.components(separatedBy: " "))!
+        var longest = ""
+        for word in words {
+            if (word.characters.count > longest.characters.count) {
+                longest = word
+            }
+        }
+        
+        testLabel.text = longest
+        testLabel.numberOfLines = 1
+        testLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        
+        var maxSize: CGFloat = 12.0
+        let minSize: CGFloat = 5.0
+        testLabel.font = UIFont.systemFont(ofSize: maxSize)
+        testLabel.sizeToFit()
+        
+        while(testLabel.frame.size.width > self.frame.size.width && maxSize > minSize)
+        {
+            maxSize = maxSize - 1
+            testLabel.font = UIFont.systemFont(ofSize: maxSize)
+            testLabel.sizeToFit()
+        }
+        self.font = UIFont.systemFont(ofSize: maxSize)
+        
+        
+        
+    }
+}

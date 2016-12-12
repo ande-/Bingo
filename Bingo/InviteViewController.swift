@@ -169,6 +169,7 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
     {
         if (editingStyle == UITableViewCellEditingStyle.delete) {
             emails.remove(at: (indexPath as NSIndexPath).row)
+            tableView.reloadData()
         }
     }
 
