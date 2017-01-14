@@ -6,11 +6,11 @@
 //  Copyright © 2016 a. All rights reserved.
 //
  
-public let baseUrl = "http://test.clichesbingo.com:8900"
-//public let baseUrl = "http://localhost:8900"
+//public let baseUrl = "http://test.clichesbingo.com:8900"
+ public let baseUrl = "http://192.168.1.65:8900"
  
 import UIKit
-import SocketIO
+
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -44,11 +44,9 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
 
     var justLeft = false
     var username = ""
-    var socket:SocketIOClient?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(emitWin(_:)), name: NSNotification.Name(rawValue: "iwon"), object: nil)
         
         navigationController!.navigationBar.setBackgroundImage(UIImage.init(), for: UIBarMetrics.default)
         navigationController!.navigationBar.shadowImage = UIImage.init()
@@ -77,10 +75,6 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
 
             }
         }
-    }
-    
-    func generateRoomCode() {
-        
     }
     
     @IBAction func joinExistingGameTapped(_ sender: AnyObject) {
@@ -155,109 +149,18 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func unwind(_ segue:UIStoryboardSegue) {
-        socket?.leaveNamespace()
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.socket?.leaveNamespace()
         justLeft = true
     }
     
     @IBAction func playTapped(_ sender: UIButton) {
-        let roomCode:String = roomCodeTextField.text!
-        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.roomCode = roomCode as NSString?
-        
-        if socket != nil {
-            socket?.joinNamespace(roomCode)
-        }
-        
-        let url: URL = URL.init(string: "\(baseUrl)")!
-        let opt1 = SocketIOClientOption.nsp("/" + roomCode);
-        let opt2 = SocketIOClientOption.connectParams(["name": username]);
-        let config: SocketIOClientConfiguration = [opt1, opt2];
-        socket = SocketIOClient(socketURL: url, config: config);
+        let roomCode:String = roomCodeTextField.text!
 
-    
-        //socket = SocketIOClient(socketURL:url, options:[SocketIOClientOption.nsp("/" + roomCode), SocketIOClientOption.connectParams(["name": username]) ])
+        appDelegate.startPlaying(roomCode)
+    }
 
-        addHandlers()
-        socket?.connect()
-    }
-    
-    func addHandlers() {	
-        socket!.onAny {print("Got event: \($0.event), with items: \($0.items)")}
-        
-        socket?.on("error") {[weak self] data, ack in
-            if let message = data[0] as? String {
-                self?.handleError(message)
-            }
-        }
-        
-        socket!.on("disconnect") {[weak self] data, ack in
-            self?.socket = nil
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.roomCode = nil
-        }
-        
-        socket!.on("playerLeft") {[weak self] data, ack in
-            if let name = data[0] as? String {
-                self?.handleLeave(name)
-            }
-        }
-        
-        socket!.on("playerJoined") {[weak self] data, ack in
-            if let name = data[0] as? String {
-                if name != self!.username {  //someone else joined
-                    self?.handleJoin(name)
-                }
-                else if let words = data[1] as? String {
-                    self?.handleMeJoin(words)
-                }
-            }
-        }
-        
-        socket!.on("win") {[weak self] data, ack in
-            if let name = data[0] as? String, let typeDict = data[1] as? [[String]] {
-                self?.handleWin(name, answers: typeDict)
-            }
-        }
-    }
-    
-    func handleLeave(_ name:String) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "playerLeft"), object: nil, userInfo: ["name" : name])
-    }
-    
-    func handleMeJoin(_ words:String) {
-        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-        if (appDelegate?.currentGame == nil) {
-            appDelegate?.currentGame = Game(name: "Remote Game", words: words)
-        }
-        performSegue(withIdentifier: "showGame", sender: self)
-    }
-    
-    func handleJoin(_ name:String) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "playerJoined"), object: nil, userInfo: ["name" : name])
-    }
-    
-    func handleWin(_ name:String, answers:[[String]]) {
-        var message:String = ""
-        for i in 0 ..< answers.count {
-            if answers.count > 1 {
-                message.append("\(i + 1). ")
-            }
-            message.append(answers[i].joined(separator: ", "))
-            if answers.count > 1 && answers.count > i {
-                message.append("\n")
-            }
-        }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "win"), object: nil, userInfo: ["name" : name, "answers" : message])
-    }
-    
-    func emitWin(_ notification: Notification) {
-        if let userInfo = (notification as NSNotification).userInfo as? Dictionary<String, [[String]]> {
-            if let answers = userInfo["answers"] as [[String]]? {
-                self.socket!.emit("win", username, answers)
-            }
-        }
-    }
     
     // Mark: - text field delegate
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -309,7 +212,7 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
             }
             else if (usernameTextField.text?.characters.count > 1 || string != "") {
                 username = usernameTextField.text! + string
-                appDelegate.currentUserName = username as NSString?
+                appDelegate.currentUserName = username
                 joinExistingButton.isHidden = false
                 createNewButton.isHidden = false
                 orLabel.isHidden = false
@@ -324,36 +227,6 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
         }
         return true
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    func handleError(_ errorMessage:String) {
-        var showingMessage = ""
-        if (errorMessage.contains("Invalid namespace")) {
-            showingMessage = "The room does not exists. Make sure the game is still in progress and you entered the correct room code"
-        }
-        else if (errorMessage.contains("Could not connect to the server")) {
-            showingMessage = "Could not connect to the server"
-            socket?.disconnect()
-        }
-        else if (errorMessage.contains("Session ID unknown")) {
-            showingMessage = "Improper disconnect, I think"
-        }
-        let alert = UIAlertController(title: "Error", message: showingMessage, preferredStyle: UIAlertControllerStyle.alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-        _ = self.navigationController?.popToRootViewController(animated: true)
-        self.present(alert, animated: true, completion: nil)
-    }
-    
-    
-    func endGame() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.currentGame = nil
-        appDelegate.roomCode = nil
-        socket?.leaveNamespace()
-        cancelJoinTapped(self)
-    }
+
     
 }

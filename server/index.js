@@ -20,6 +20,7 @@ function Player(name, nsp) {
     var self = this
     this.nsp = nsp
     this.name = name
+	this.isSleeping = false;
     this.game = {}
 }
 
@@ -43,13 +44,28 @@ Game.prototype.addHandlers = function() {
     nsp.on('connection', function(socket){
         console.log('connection made to room '+game.roomId);
         var playerName = socket.handshake.query.name;
-        game.addPlayer(new Player(playerName, nsp));
+		var player = game.players.find(x => x.name == playerName);
+		if (!player) {
+     	   game.addPlayer(new Player(playerName, nsp));
+		} else {
+			player.isSleeping = false;
+			console.log('wake by ' + playerName);
+		}
         socket.on('win', function(name, answers) {
           game.announceWin(name, answers);
         })
+		socket.on('sleeping', function() {
+			var player = game.players.find(x => x.name == playerName);
+			player.isSleeping = true;
+		})
         socket.on('disconnect', function() {
-          console.log('disconnect by '+ playerName);
-          game.removePlayer(playerName);
+			var player = game.players.find(x => x.name == playerName);
+			if (!player.isSleeping) {
+     		     console.log('disconnect by '+ playerName);
+     		     game.removePlayer(playerName);
+			} else {
+				console.log('sleep by ' + playerName);
+			}
         })
     });
 }

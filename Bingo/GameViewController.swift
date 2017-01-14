@@ -104,8 +104,8 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
                 let alert = UIAlertController(title: playerName + " won!", message: "answers: " + answers, preferredStyle: UIAlertControllerStyle.alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: {
                     (alert: UIAlertAction!) in
-                    let viewController = self.navigationController?.viewControllers[0] as! InitialViewController
-                    viewController.endGame()
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    appDelegate.endGame()
                     _ = self.navigationController?.popToRootViewController(animated: true)
                     
                 }))

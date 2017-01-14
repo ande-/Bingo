@@ -9,36 +9,185 @@
 import UIKit
 import CoreData
 import Contacts
+import SocketIO
+
     
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
-    var currentUserName:NSString?
+    var currentUserName:String? // TODO: why was this NSString? does everything still work?
     var currentGame:Game?
     var roomCode:NSString?
-
+    var socket:SocketIOClient?
+    
     var contactStore = CNContactStore()
+    
+    // Mark: - socket
+    func startPlaying(_ roomCode: String) {
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.roomCode = roomCode as NSString?
+        
+        if socket != nil {
+            socket?.joinNamespace(roomCode)
+        }
+        
+        let url: URL = URL.init(string: "\(baseUrl)")!
+        let opt1 = SocketIOClientOption.nsp("/" + roomCode);
+        let opt2 = SocketIOClientOption.connectParams(["name": currentUserName!]);
+        let config: SocketIOClientConfiguration = [opt1, opt2];
+        socket = SocketIOClient(socketURL: url, config: config);
+        
+        
+        //socket = SocketIOClient(socketURL:url, options:[SocketIOClientOption.nsp("/" + roomCode), SocketIOClientOption.connectParams(["name": username]) ])
+        
+        addHandlers()
+        socket?.connect()
+    }
+    
+    func addHandlers() {
+        socket!.onAny {print("Got event: \($0.event), with items: \($0.items)")}
+        
+        socket?.on("error") {[weak self] data, ack in
+            if let message = data[0] as? String {
+                self?.handleError(message)
+            }
+        }
+        
+        socket!.on("disconnect") {[weak self] data, ack in
+            self?.socket = nil
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.roomCode = nil
+        }
+        
+        socket!.on("playerLeft") {[weak self] data, ack in
+            if let name = data[0] as? String {
+                self?.handleLeave(name)
+            }
+        }
+        
+        socket!.on("playerJoined") {[weak self] data, ack in
+            if let name = data[0] as? String {
+                if name != self!.currentUserName {  //someone else joined
+                    self?.handleJoin(name)
+                }
+                else if let words = data[1] as? String {
+                    self?.handleMeJoin(words)
+                }
+            }
+        }
+        
+        socket!.on("win") {[weak self] data, ack in
+            if let name = data[0] as? String, let typeDict = data[1] as? [[String]] {
+                self?.handleWin(name, answers: typeDict)
+            }
+        }
+    }
+    
+    
+    func handleLeave(_ name:String) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "playerLeft"), object: nil, userInfo: ["name" : name])
+    }
+    
+    func handleMeJoin(_ words:String) {
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        if (appDelegate?.currentGame == nil) {
+            appDelegate?.currentGame = Game(name: "Remote Game", words: words)
+        }
+        let nc = self.window?.rootViewController as! UINavigationController
+
+        if let ivc = nc.visibleViewController as? InitialViewController {
+            ivc.performSegue(withIdentifier: "showGame", sender: self)
+        }
+    }
+    
+    func handleJoin(_ name:String) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "playerJoined"), object: nil, userInfo: ["name" : name])
+    }
+    
+    func handleWin(_ name:String, answers:[[String]]) {
+        var message:String = ""
+        for i in 0 ..< answers.count {
+            if answers.count > 1 {
+                message.append("\(i + 1). ")
+            }
+            message.append(answers[i].joined(separator: ", "))
+            if answers.count > 1 && answers.count > i {
+                message.append("\n")
+            }
+        }
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "win"), object: nil, userInfo: ["name" : name, "answers" : message])
+    }
+    
+    func handleError(_ errorMessage:String) {
+        var showingMessage = errorMessage; // TODO: make this empty string, showing all messages for debugging only
+        if (errorMessage.contains("Invalid namespace")) {
+            showingMessage = "The room does not exists. Make sure the game is still in progress and you entered the correct room code"
+        }
+        else if (errorMessage.contains("Could not connect to the server")) {
+            showingMessage = "Could not connect to the server"
+            socket?.disconnect()
+        }
+        else if (errorMessage.contains("Session ID unknown")) {
+            showingMessage = "Improper disconnect, I think"
+        }
+        let alert = UIAlertController(title: "Error", message: showingMessage, preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+        let vc = self.window?.rootViewController
+        vc?.present(alert, animated: true, completion: nil)
+    }
+    
+    func emitWin(_ notification: Notification) {
+        if let userInfo = (notification as NSNotification).userInfo as? Dictionary<String, [[String]]> {
+            if let answers = userInfo["answers"] as [[String]]? {
+                self.socket!.emit("win", currentUserName!, answers)
+            }
+        }
+    }
+    
+    func endGame() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.currentGame = nil
+        appDelegate.roomCode = nil
+        socket?.leaveNamespace()
+        
+        let nc = self.window?.rootViewController as! UINavigationController
+
+        if let ivc = nc.viewControllers.first as? InitialViewController {
+            ivc.cancelJoinTapped(self);
+        }
+    }
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         window?.tintColor = kReddishBrownColor
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(emitWin(_:)), name: NSNotification.Name(rawValue: "iwon"), object: nil)
 
         return true
     }
-
+    
+    // Mark: - app delegate
+    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+        socket?.emit("sleeping", currentUserName!)
+
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+        socket?.reconnect() // TODO: will this be the same namespace?
+
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -48,6 +197,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
+        NotificationCenter.default.removeObserver(self)
+
         self.saveContext()
     }
 
