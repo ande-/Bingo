@@ -72,7 +72,7 @@ class SelectTemplateViewController: UIViewController, UITableViewDataSource, UIT
     func loadSystemGames() -> [Game] {
         let classic = Game(name:"Cliches", words: "opposites attract, when life gives you lemons, push the envelope, money doesn't grow on trees, read between the lines, woke up on the wrong side of the bed, better half, broken record, dog eat dog, greek to me, foot in mouth, it's a small world, jump the gun, learn the ropes, you only live once, when it rains it pours, tip of your tongue, spitting image, spinning your wheels, out on a limb, break the ice, killing time, light at the end of the tunnel, it is what it is")
         
-        let corporate = Game(name:"Corporate", words: "synergy, leverage, strategic, partnership, DNA, mobile, global, local, paradigm, actionable, bandwidth, pipeline, culture, value- added, scalable, user experience, integrated, thought leader, enterprise, ballpark, reach out to, take this offline, touch base, ping me")
+        let corporate = Game(name:"Corporate", words: "synergy, leverage, strategic, partnership, DNA, mobile, global, local, paradigm, actionable, bandwidth, pipeline, culture, value proposition, scalable, user experience, integrated, thought leader, enterprise, ballpark, reach out to, take this offline, touch base, ping me")
         
         let techology = Game(name: "Technology", words: "internet of things, virtual reality, mobile first, [X] as a service, net neutrality, deep learning, high availability, blockchain, data mining, quantum computing, information of everything, agile, benchmarking, cloud, cross-platform, deep dive, devOps, real-time, web 2.0, growth hacking, digital signage, datafication, big data, [X]-driven development, neural nets")
 
