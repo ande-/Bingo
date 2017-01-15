@@ -150,7 +150,9 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func unwind(_ segue:UIStoryboardSegue) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.socket?.leaveNamespace()
+        appDelegate.socket?.disconnect()
+        appDelegate.currentGame = nil;
+        UIApplication.shared.isIdleTimerDisabled = false;
         justLeft = true
     }
     

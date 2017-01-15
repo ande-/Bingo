@@ -211,6 +211,8 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func win(_ answers: [[String]]) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.emitWin(answers)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "iwon"), object: nil, userInfo:["answers" : answers])
     }
     

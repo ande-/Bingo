@@ -100,6 +100,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if let ivc = nc.visibleViewController as? InitialViewController {
             ivc.performSegue(withIdentifier: "showGame", sender: self)
+            UIApplication.shared.isIdleTimerDisabled = true;
+
         }
     }
     
@@ -139,12 +141,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         vc?.present(alert, animated: true, completion: nil)
     }
     
-    func emitWin(_ notification: Notification) {
-        if let userInfo = (notification as NSNotification).userInfo as? Dictionary<String, [[String]]> {
-            if let answers = userInfo["answers"] as [[String]]? {
-                self.socket!.emit("win", currentUserName!, answers)
-            }
-        }
+    func emitWin(_ answers: [[String]]) {
+        self.socket!.emit("win", currentUserName!, answers)
     }
     
     func endGame() {
@@ -160,21 +158,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    // Mark: - app delegate
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         window?.tintColor = kReddishBrownColor
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(emitWin(_:)), name: NSNotification.Name(rawValue: "iwon"), object: nil)
 
         return true
     }
     
-    // Mark: - app delegate
-    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-        socket?.emit("sleeping", currentUserName!)
+        if (socket?.status == SocketIOClientStatus.connected && currentGame != nil) {
+            socket?.emit("sleeping", currentUserName!)
+        }
 
     }
 
@@ -186,7 +183,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-        socket?.reconnect() // TODO: will this be the same namespace?
+        if ((socket?.status == SocketIOClientStatus.disconnected || socket?.status == SocketIOClientStatus.notConnected) && currentGame != nil) {
+            socket?.reconnect() // TODO: will this be the same namespace?
+        }
 
     }
 
