@@ -49,6 +49,9 @@ Game.prototype.addHandlers = function() {
      	   game.addPlayer(new Player(playerName, nsp));
 		} else {
 			player.isSleeping = false;
+			if (game.over) {
+				game.announceWin(game.overData.winningPlayerName, game.overData.winningAnswers);
+			}
 			console.log('wake by ' + playerName);
 		}
         socket.on('win', function(name, answers) {
@@ -107,6 +110,7 @@ Game.prototype.announceWin = function(playerName, answers) {
         this.players[i].nsp.emit("win", playerName, answers);
     }
     this.over = true;
+	this.overData = { winningPlayerName: playerName, winningAnswers: answers }
 }
 
 function gameOver(roomId) {

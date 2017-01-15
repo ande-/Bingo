@@ -17,11 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
-    var currentUserName:String? // TODO: why was this NSString? does everything still work?
+    var currentUserName:String?
     var currentGame:Game?
     var roomCode:NSString?
     var socket:SocketIOClient?
-    
+    var sleeping: Bool = false
     var contactStore = CNContactStore()
     
     // Mark: - socket
@@ -135,6 +135,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         else if (errorMessage.contains("Session ID unknown")) {
             showingMessage = "Improper disconnect, I think"
         }
+        else if (errorMessage.contains("The operation couldn’t be completed. Socket is not connected")) {
+            if (sleeping) {
+                sleeping = false
+                // eat it
+                socket?.reconnect() // TODO: will this be the same namespace?
+                return
+            }
+        }
         let alert = UIAlertController(title: "Error", message: showingMessage, preferredStyle: UIAlertControllerStyle.alert)
         alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
         let vc = self.window?.rootViewController
@@ -170,6 +178,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
         if (socket?.status == SocketIOClientStatus.connected && currentGame != nil) {
+            sleeping = true
             socket?.emit("sleeping", currentUserName!)
         }
 
@@ -183,8 +192,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-        if ((socket?.status == SocketIOClientStatus.disconnected || socket?.status == SocketIOClientStatus.notConnected) && currentGame != nil) {
-            socket?.reconnect() // TODO: will this be the same namespace?
+        if (currentGame != nil) {
+            socket?.reconnect() //  this doesn't seem to be working properly TODO: will this be the same namespace?
         }
 
     }
