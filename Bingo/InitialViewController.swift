@@ -55,6 +55,8 @@ class InitialViewController: UIViewController, UITextFieldDelegate {
         navigationController!.view.backgroundColor = UIColor.clear
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        
+        playButton.contentHorizontalAlignment = .left
 
     }
     

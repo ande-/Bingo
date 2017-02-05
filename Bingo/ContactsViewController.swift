@@ -35,58 +35,57 @@ class ContactsViewController: UIViewController, UITableViewDelegate, UITableView
         
         let textFieldInsideSearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = kReddishBrownColor
+        searchBar.becomeFirstResponder()
+        requestForAccess { (accessGranted) in
+            print("access granted: \(accessGranted)")
+        }
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if let s = searchBar.text {
-            enable(s);
+            search(s);
         }
     }
-
-    func enable(_ term: String) {
-        requestForAccess { (accessGranted) -> Void in
-            if accessGranted {
-                let predicate = CNContact.predicateForContacts(matchingName: term)
-                let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactEmailAddressesKey]
-                var contacts = [CNContact]()
-                var message: String!
-                
-                let appDel = UIApplication.shared.delegate as! AppDelegate;
-                
-                let contactsStore = appDel.contactStore
-                do {
-                    contacts = try contactsStore.unifiedContacts(matching: predicate, keysToFetch: keys as [CNKeyDescriptor])
-                    
-                    if contacts.count == 0 {
-                        message = "No contacts were found matching the given name."
-                    }
-                }
-                catch {
-                    message = "Unable to fetch contacts."
-                }
-                
-                
-                if message != nil {
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        print(message)
-                    })
-                }
-                else {
-                    for contact in contacts {
-                        let nameString = "\(contact.givenName) \(contact.familyName)"
-                        for emailAddress in contact.emailAddresses {
-                            let emailString = emailAddress.value as String
-                            let newContactEmail = ContactEmail(name: nameString, email: emailString)
-                            self.contacts.append(newContactEmail)
-                        }
-                    }
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        self.tableView.reloadData()
-                    })
-                }
+    
+    func search(_ term: String) {
+        let predicate = CNContact.predicateForContacts(matchingName: term)
+        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactEmailAddressesKey]
+        var contacts = [CNContact]()
+        var message: String!
+        
+        let appDel = UIApplication.shared.delegate as! AppDelegate;
+        
+        let contactsStore = appDel.contactStore
+        do {
+            contacts = try contactsStore.unifiedContacts(matching: predicate, keysToFetch: keys as [CNKeyDescriptor])
+            
+            if contacts.count == 0 {
+                message = "No contacts were found matching the given name."
             }
         }
-
+        catch {
+            message = "Unable to fetch contacts."
+        }
+        
+        
+        if message != nil {
+            DispatchQueue.main.async(execute: { () -> Void in
+                print(message)
+            })
+        }
+        else {
+            for contact in contacts {
+                let nameString = "\(contact.givenName) \(contact.familyName)"
+                for emailAddress in contact.emailAddresses {
+                    let emailString = emailAddress.value as String
+                    let newContactEmail = ContactEmail(name: nameString, email: emailString)
+                    self.contacts.append(newContactEmail)
+                }
+            }
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.tableView.reloadData()
+            })
+        }
     }
     
     

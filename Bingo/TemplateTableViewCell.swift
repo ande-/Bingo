@@ -14,6 +14,7 @@ class TemplateTableViewCell: UITableViewCell {
         super.awakeFromNib()
         textLabel?.backgroundColor = UIColor.clear
         textLabel?.textColor = kReddishBrownColor
+        textLabel?.font = UIFont.systemFont(ofSize: 17)
         detailTextLabel?.textColor = kReddishBrownColor
         backgroundColor = UIColor.clear
         contentView.backgroundColor = UIColor.clear

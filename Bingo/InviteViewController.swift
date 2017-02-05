@@ -48,6 +48,8 @@ class InviteViewController: UIViewController, UITextFieldDelegate, MFMailCompose
         super.viewDidLoad()
         automaticallyAdjustsScrollViewInsets = false;
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        emailsTableView.tableFooterView = UIView()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
