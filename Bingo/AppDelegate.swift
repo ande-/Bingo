@@ -48,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func addHandlers() {
-        socket!.onAny {print("Got event: \($0.event), with items: \($0.items)")}
+        socket!.onAny {print("Got event: \($0.event), with items: \(String(describing: $0.items))")}
         
         socket?.on("error") {[weak self] data, ack in
             if let message = data[0] as? String {

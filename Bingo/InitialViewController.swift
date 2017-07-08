@@ -6,8 +6,8 @@
 //  Copyright © 2016 a. All rights reserved.
 //
  
-//public let baseUrl = "http://test.clichesbingo.com:8900"
- public let baseUrl = "http://192.168.1.65:8900"
+public let baseUrl = "http://test.clichesbingo.com:8900"
+// public let baseUrl = "http://192.168.1.65:8900"
  
 import UIKit
 

@@ -6,6 +6,6 @@ target 'Bingo' do
   use_frameworks!
 
   # Pods for Bingo
-  pod 'Socket.IO-Client-Swift', '~> 8.0.0'
+  pod 'Socket.IO-Client-Swift', '~> 10.2.0'
 
 end
