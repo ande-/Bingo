@@ -75,16 +75,16 @@ class SelectTemplateViewController: UIViewController, UITableViewDataSource, UIT
         let corporate = Game(name:"Corporate", words: "synergy, leverage, strategic, partnership, DNA, mobile, global, local, paradigm, actionable, bandwidth, pipeline, culture, value proposition, scalable, user experience, integrated, thought leader, enterprise, ballpark, reach out to, take this offline, touch base, ping me")
         
         let techology = Game(name: "Technology", words: "internet of things, virtual reality, mobile first, [X] as a service, net neutrality, deep learning, high availability, blockchain, data mining, quantum computing, information of everything, agile, benchmarking, cloud, cross-platform, deep dive, devOps, real-time, web 2.0, growth hacking, digital signage, datafication, big data, [X]-driven development, neural nets")
-
-        let liberals = Game(name: "Liberals", words: "privilege, safe space, triggered, straight white male, rape culture, inclusive, ally, identify, microaggression, heteronormative, intersectional, targeted, diversity, green, [X]-phobe, construct (noun), alt-right, social contract, safety net, [X]-gap, the one percent, empower, carbon, problematic, activism")
-
-        let conservatives = Game(name: "Conservatives", words: "tough on crime, illegals (noun), socialist, voter fraud, entitled, participation trophy, patriot?, repeal, Regan, second amendment, tax cuts, values, God bless America, welfare queens, anchor baby, pro-business, elites, big government, agenda, mainstream media, free market, family, vouchers, overreach, border security")
-        
+//
+//        let liberals = Game(name: "Liberals", words: "privilege, safe space, triggered, straight white male, rape culture, inclusive, ally, identify, microaggression, heteronormative, intersectional, targeted, diversity, green, [X]-phobe, construct (noun), alt-right, social contract, safety net, [X]-gap, the one percent, empower, carbon, problematic, activism")
+//
+//        let conservatives = Game(name: "Conservatives", words: "tough on crime, illegals (noun), socialist, voter fraud, entitled, participation trophy, patriot?, repeal, Regan, second amendment, tax cuts, values, God bless America, welfare queens, anchor baby, pro-business, elites, big government, agenda, mainstream media, free market, family, vouchers, overreach, border security")
+//        
         let kidsTheseDays = Game(name: "Kids These Days", words: "bae, ghost, neg, cheesing, olds, turnt, woke, slay, tight, on fleek, basic, lit, the ’rents, fam, can’t even, thot, throw shade, yaaaas, suh, dope, ship, i know right, any acronym, ratchet, high-key")
         
 //        let politics = Game(name:"Politics", words:"the american people, career politician, super PAC, grass-roots, middle class, veterans, top one percent, hard-working, family values, crossroads, the economy, big government, boots on the ground, right/left wing, strong leader, tax cut, radical, corrupt, terrorist, game changers, war on X, my friends, voters, my competitor")
         
-        return [classic, corporate, techology, liberals, conservatives, kidsTheseDays]
+        return [classic, corporate, techology, kidsTheseDays]
     }
     
     //MARK: table view data source
